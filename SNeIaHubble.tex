@@ -50,11 +50,9 @@ Current plans for utilizing classification and redshift probabilities involve im
 \section{A proposed solution}
 \label{sec:confrac}
 
-This work expands upon the graphical model presented in \citet{Ma16} and the probabilistic treatment of \citet{Kunz07}, summarized here.
+This work employs a probabilistic graphical model, such as those presented in \citet{March11, Rubin15, Ma16}, and Bayesian hierarchical inference, as has been used in \citet{Kunz07, Mandel16}.  Though the approach developed herein has been applied in this field in the past, no previous method accounts for uncertainty in supernova type.
 
 \citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework, which does not produce classification probabilities, rather probabilities on the lightcurve fit parameters of interest, such as distance modulus.  They aim to find the posterior probability distribution of the distance modulus for each supernova given the photometric data, but they do require the type classification posterior to be known.  They do show the case more than two possible types, but they do not test the method on real data.
-
-
 
 %Let us consider a simplified case in which the full sample of $N$ observed transients in a photometric survey are close enough in redshift that the Hubble parameter $H(z)$ is a constant $H_{0}$, which we shall call the Hubble constant.  The data $\{\textul{d}_{n}\}_{N}$ from this hypothetical survey consist of $N$ matrices $\textul{d}_{n}$ each comprised of a set of fluxes at $T_{n}$ lightcurve observation times in each of $F$ photometric filters specified by known parameters $\vec{f}$.  These represent samples of a true lightcurve specified by latent parameters $\vec{\ell}_{n}$ of the supernova at the location of the observer.  The lightcurve parameters are in turn determined by several other latent variables; its shape over time is determined by the properties $\vec{\alpha}_{m}$ associated with the type $s_{m}$ of supernova (out of $m$ possible types) in question, its magnitude is determined by its distance $r_{n}$ from the observer and the parameters determining its intrinsic luminosity $\vec{L}_{n}$, and its location in spectral space is determined by its redshift $z_{n}$.  There are some hyperparameters governing the distribution of each of these parameters; $H$ determines the relationship between $z_{n}$ and $r_{n}$, $D$ specifies the intrinsic density distribution of supernovae, and $S$ governs the distribution of supernova types.  This information may be summarized by the probabilistic graphical model of Fig. \ref{fig:pgm}.
 %
@@ -118,14 +116,15 @@ This work expands upon the graphical model presented in \citet{Ma16} and the pro
 
 \section{Classification Methods}
 
-There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.  Many of these are compared in \citet{Kessler10}.  
+There are a number of potentially probabilistic supernova type classification methods in the literature, each of which will be reviewed here.  Many of these are compared in \citet{Kessler10}, and they are summarized in Tab. \ref{tab:comp}.  
 
-\begin{tabular}{cccc}
-References&Inputs&Outputs&Availability\\
-\citet{Kuznetsova06}&&&\\
-\citet{Poznanski06}&&&\\
-\citet{Rodney09, Rodney10}&&&\\
-\citet{Sako11}&&&\\
+\begin{tabular}{ccccc}
+\label{tab:comp}
+References&Inputs&Outputs&Availability&Applications\\
+\citet{Kuznetsova06}&&&&\\
+\citet{Poznanski06}&&&&\\
+\citet{Rodney09, Rodney10}&&&&\\
+\citet{Sako11}&&&&\citet{Sako14}\\
 \end{tabular}
 
 \subsection{First(?) Bayesian Approach}
@@ -146,13 +145,13 @@ SOFT is proposed for when the above assumptions are violated.  In particular, a 
 
 \subsection{PSNID}
 
-Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type.  However, it permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is also incorporated into SNANA and is extremely similar to SN-ABC in its overall approach.  The differences are more freedom in the number of classes and the variables that are free in the $\chi^{2}$ fits.
+Photometric SN Identification (PSNID) \citep{Sako11} outputs the MAP type based on a $\chi^{2}$ fit, without providing the probabilities for each type, much like \citet{Poznanski06} but permitting multiple non-Ia types.  It also permits specification of the rates for each template type and provision of arbitrary templates, as well as an MCMC exploration of $\chi^{2}$ as opposed to a traditional grid search.  PSNID is incorporated into SNANA and is extremely similar to SN-ABC in its overall approach.  The differences are more freedom in the number of classes and the variables that are free in the $\chi^{2}$ fits.
 
 \subsection{Machine Learning}
 
 Nearest neighbor methods have been applied by \citet{Sako14} in an extension of PSNID.
 
-Tree-based methods have been explored recently in the literature \citep{Richards11, Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have always been used only to make deterministic classifications thus far.  
+Tree-based methods have been explored recently in the literature \citep{Richards11, Sako14, Lochner16, Moller16}.  While they do in theory produce probabilities over classes, they have always been used only to make deterministic classifications thus far.  \citet{Sako14} employs a kd-tree nearest neighbor algorithm.
 
 Other machine learning approaches have also been investigated.  \citet{Varughese15} uses adaptive wavelets.  \citet{Karpenka12, Charnock16} use recurrent neural networks.  \citet{Lochner16} compares several of these approaches.
 
