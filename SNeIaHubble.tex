@@ -6,16 +6,6 @@
 %\usepackage{bibtex}
 %\bibliographystyle{unsrtnat}
 
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows}
-\usetikzlibrary{fit}
-
-\tikzstyle{hyper} = [circle, text centered, draw=black]
-\tikzstyle{param} = [circle, text centered, draw=black]
-\tikzstyle{data} = [circle, text centered, draw=black, line width=2pt]
-\tikzstyle{arrow} = [thick,->,>=stealth]
-\tikzset{det/.style={insert path={ node {.} }}}
-
 \newcommand{\myemail}{aimalz@nyu.edu}
 \newcommand{\textul}{\underline}
 
@@ -30,8 +20,14 @@
 
 \author{A.I. Malz\altaffilmark{1}}
 \author{Maryam Modjaz\altaffilmark{1}}
-\author{Federica Bianco\altaffilmark{1}}
-\altaffiltext{1}{CCPP}
+\author{Federica Bianco\altaffilmark{1,2}}
+\author{David Hogg\altaffilmark{1,3,4,5}}
+\altaffiltext{1}{Center for Cosmology and Particle Physics, Department of Physics,
+  New York University, 4 Washington Pl., room 424, New York, NY 10003, USA}
+ \altaffiltext{2}{CUSP}
+\altaffiltext{3}{Simons Center for Data Analysis, 160 Fifth Avenue, 7th floor, New York, NY 10010, USA}
+\altaffiltext{4}{Center for Data Science, New York University, 726 Broadway, 7th floor, New York, NY 10003, USA}
+\altaffiltext{5}{Max-Planck-Institut f\"ur Astronomie, K\"onigstuhl 17, D-69117 Heidelberg, Germany}
 \email{aimalz@nyu.edu}
 
 \begin{abstract}
@@ -47,57 +43,26 @@ Supernovae of type Ia (hereafter SNe Ia) serve as standardizable candles that ca
 
 Current plans for utilizing classification and redshift probabilities involve imposing cuts to obtain a sample with a low contamination fraction and high completeness and inferring the Hubble parameter from the cut sample.  This approach unfortunately throws out information, excluding some SNe Ia and including some contaminants, such as type Ib/c supernovae (hereafter SNe Ib/c).  The effect of these contaminants on the Hubble parameter is explored in \citet{Homeier05} and one attempt to correct for it are presented in \citet{Kessler16}.  As an alternative, the set of joint posterior probabilities over type and redshift produced by a given survey may be used in full to calculate the posterior probability distribution over the Hubble parameter.  
 
-\section{A proposed solution}
-\label{sec:confrac}
+\section{Methods}
+\label{sec:meth}
 
-This work employs a probabilistic graphical model, such as those presented in \citet{March11, Rubin15, Ma16}, and Bayesian hierarchical inference, as has been used in \citet{Kunz07, Mandel16}.  Though the approach developed herein has been applied in this field in the past, no previous method accounts for uncertainty in supernova type.
+This work employs a probabilistic graphical model (PGM), such as those presented in \citet{March11, Rubin15, Ma16}, and Bayesian hierarchical inference, as has been used in \citet{Kunz07, Mandel16}.  Though the approach developed herein has been applied in this field in the past, no previous method accounts for uncertainty in supernova type.
 
 \citet{Kunz07} introduces the Bayesian Estimation Applied to Multiple Species (BEAMS) framework, which does not produce classification probabilities, rather probabilities on the lightcurve fit parameters of interest, such as distance modulus.  They aim to find the posterior probability distribution of the distance modulus for each supernova given the photometric data, but they do require the type classification posterior to be known.  They do show the case more than two possible types, but they do not test the method on real data.
 
+\citet{Mandel16} distinguishes the effects of intrinsic color-luminosity effects and host galaxy dust extinction in SN Ia lightcurve fitting.  Though they assume that all SNe in the sample are of type Ia, they successfully simultaneously fit the two sources of reddening along with the lightcurve fit parameters.  They show the effect of propagating the corresponding estimates of distance into the Hubble diagram, which leads to less biased residuals from the $\Lambda$CDM Hubble relation at the extremes of observed color.
+
+In this work, we devise a PGM for the case where type is uncertain, incorporating the progress of both \citet{Kunz07, Mandel16}.
 %Let us consider a simplified case in which the full sample of $N$ observed transients in a photometric survey are close enough in redshift that the Hubble parameter $H(z)$ is a constant $H_{0}$, which we shall call the Hubble constant.  The data $\{\textul{d}_{n}\}_{N}$ from this hypothetical survey consist of $N$ matrices $\textul{d}_{n}$ each comprised of a set of fluxes at $T_{n}$ lightcurve observation times in each of $F$ photometric filters specified by known parameters $\vec{f}$.  These represent samples of a true lightcurve specified by latent parameters $\vec{\ell}_{n}$ of the supernova at the location of the observer.  The lightcurve parameters are in turn determined by several other latent variables; its shape over time is determined by the properties $\vec{\alpha}_{m}$ associated with the type $s_{m}$ of supernova (out of $m$ possible types) in question, its magnitude is determined by its distance $r_{n}$ from the observer and the parameters determining its intrinsic luminosity $\vec{L}_{n}$, and its location in spectral space is determined by its redshift $z_{n}$.  There are some hyperparameters governing the distribution of each of these parameters; $H$ determines the relationship between $z_{n}$ and $r_{n}$, $D$ specifies the intrinsic density distribution of supernovae, and $S$ governs the distribution of supernova types.  This information may be summarized by the probabilistic graphical model of Fig. \ref{fig:pgm}.
 %
-%\begin{figure}
-%\vspace{0.5cm}
-%\begin{center}
-%\begin{tikzpicture}[node distance=1cm]
-%
-%\node (Hz) [hyper, xshift=-1cm] {$H$};
-%\node (Dr) [hyper] {$D$};
-%\node (Ss) [hyper, xshift=+1cm] {$S$};
-%
-%\node (zn) [param, below of=Hz,yshift=-0.25cm] {$z_{n}$};
-%\node (rn) [param, below of=Dr,yshift=-0.25cm] {$r_{n}$};
-%\node (sn) [param, below of=Ss,yshift=-0.25cm] {$s_{n}$};
-%
-%\node (lcn) [param, below of=rn,yshift=-0.25cm] {$\textul{\ell}_{n}$};
-%
-%\node (dn) [data, below of=lcn,yshift=-0.25cm] {$\textul{d}_{n}$};
-%
-%\node (f) [det,below of=sn,xshift=+1cm] {$\vec{f}$};
-%\node (t) [det,below of=f] {$\textul{t}$};
-%
-%\node (survey) [draw=black,fit={(zn.west)(rn.north)(dn.south)(sn.east)}] {};
-%\node [xshift=1.75cm,yshift=0.25cm] at (survey.south) {$n=1,\dots,N$};
-%
-%\draw [arrow] (Hz) -- (zn);
-%\draw [arrow] (Dr) -- (rn);
-%\draw [arrow] (Ss) -- (sn);
-%
-%\draw [arrow] (rn) -- (zn);
-%
-%\draw [arrow] (zn) -- (lcn);
-%\draw [arrow] (rn) -- (lcn);
-%\draw [arrow] (sn) -- (lcn);
-%
-%\draw [arrow] (lcn) -- (dn);
-%\draw [arrow] (f) -- (dn);
-%\draw [arrow] (t) -- (dn);
-%
-%\end{tikzpicture}
-%\caption{}
-%\label{fig:pgm}
-%\end{center}
-%\end{figure}
+\begin{figure}
+\vspace{0.5cm}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{sn-draft.png}
+\caption{This directed acyclic graph represents the problem we wish to solve.  We would like to obtain the posterior over the cosmological parameters comprising $\vec{\Omega}$ given the data of observed photometry $\{\textul{f}_{n}\}_{N}$.  To do this, we must marginalize over the lightcurve fit parameters $\{M_{n},x_{n},c_{n}\}_{N}$ and their parent distributions determined by parameters $\textul{\Sigma}$, the dust parameters $\{E_{n},A_{B,n}\}_{N}$ and their parent distributions determined by population parameters $R_{B},\tau$, the distance moduli $\{\mu_{n}\}_{N}$, the supernova types $\{K_{n}\}_{N}$, and the true photometry $\{\textul{f}_{0,n}\}_{N}$.  We take the following quantities as known constants: true redshift}
+\label{fig:pgm}
+\end{center}
+\end{figure}
 %
 %The model of Fig. \ref{fig:pgm} corresponds to the following equations for the posterior probability distribution $p(H|\{\textul{d}_{n}\}_{N})$.  
 %
